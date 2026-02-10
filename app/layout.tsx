@@ -23,11 +23,11 @@ export const metadata: Metadata = {
   authors: [{ name: 'Henrique Buzeto' }],
   icons: {
     icon: [
-      { url: '/LOGO%20HB.png', sizes: '128x128', type: 'image/png' },
-      { url: '/LOGO%20HB.png', sizes: '32x32', type: 'image/png' },
-      { url: '/LOGO%20HB.png', sizes: '16x16', type: 'image/png' },
+      { url: '/LOGO%20HB.png?v=2', sizes: '128x128', type: 'image/png' },
+      { url: '/LOGO%20HB.png?v=2', sizes: '32x32', type: 'image/png' },
+      { url: '/LOGO%20HB.png?v=2', sizes: '16x16', type: 'image/png' },
     ],
-    apple: { url: '/LOGO%20HB.png', sizes: '128x128', type: 'image/png' },
+    apple: { url: '/LOGO%20HB.png?v=2', sizes: '128x128', type: 'image/png' },
   },
   openGraph: {
     type: 'website',
