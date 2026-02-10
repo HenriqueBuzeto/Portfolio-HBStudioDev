@@ -9,7 +9,7 @@ import { services } from '@/data/services'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Início',
+  title: 'HB Studio Dev',
   description: 'Desenvolvimento de sites e landing pages profissionais com foco em performance e conversão. Planejamento SEO para melhor posicionamento do seu site.',
 }
 

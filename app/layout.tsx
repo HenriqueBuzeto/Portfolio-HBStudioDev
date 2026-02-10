@@ -15,23 +15,31 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Desenvolvimento Web Premium | Landing Pages e Sites Institucionais',
-    template: '%s | Henrique Buzeto'
+    default: 'HB Studio Dev',
+    template: '%s | HB Studio Dev',
   },
   description: 'Criação de sites e landing pages profissionais com foco em performance e conversão. Planejamento SEO para melhor posicionamento do seu site.',
   keywords: ['desenvolvimento web', 'landing page', 'site institucional', 'freelancer', 'Next.js'],
   authors: [{ name: 'Henrique Buzeto' }],
+  icons: {
+    icon: [
+      { url: '/LOGO%20HB.png', sizes: '128x128', type: 'image/png' },
+      { url: '/LOGO%20HB.png', sizes: '32x32', type: 'image/png' },
+      { url: '/LOGO%20HB.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: { url: '/LOGO%20HB.png', sizes: '128x128', type: 'image/png' },
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: 'https://seusite.com',
-    title: 'Desenvolvimento Web Premium',
+    title: 'HB Studio Dev',
     description: 'Criação de sites e landing pages profissionais',
-    siteName: 'Henrique Buzeto',
+    siteName: 'HB Studio Dev',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Desenvolvimento Web Premium',
+    title: 'HB Studio Dev',
     description: 'Criação de sites e landing pages profissionais',
   },
   robots: {

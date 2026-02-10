@@ -57,3 +57,6 @@ Desktop.ini
 
 # Cursor (opcional - descomente para não subir configurações do Cursor)
 # .cursor/
+
+.vercel
+.env*.local

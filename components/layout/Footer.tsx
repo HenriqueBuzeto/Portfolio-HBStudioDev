@@ -111,13 +111,14 @@ export default function Footer() {
               >
                 <div className="relative w-16 h-16 flex items-center justify-center">
                   <Image
-                    src="/logo.png"
-                    alt="Henrique Buzeto Logo"
+                    src="/LOGO%20HB.png"
+                    alt="HB Studio Dev - Logo"
                     width={64}
                     height={64}
-                    className={`object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-300 ${
+                    className={`object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-300 w-full h-full ${
                       isLight ? 'brightness-0' : ''
                     }`}
+                    style={{ objectFit: 'contain' }}
                   />
                 </div>
                 {!isLight && (

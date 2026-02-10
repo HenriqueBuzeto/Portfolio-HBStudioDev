@@ -73,17 +73,19 @@ export default function Header() {
                   exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                   transition={{ duration: 0.5 }}
                   className="relative z-10 flex items-center justify-center"
-                  style={{ width: '180px', height: '180px' }}
+                  style={{ width: '64px', height: '64px' }}
                 >
                   <Image
-                    src="/logo.png"
-                    alt="Henrique Buzeto Logo"
-                    width={180}
-                    height={180}
-                    className={`object-contain drop-shadow-2xl transition-all duration-300 ${
+                    src="/LOGO%20HB.png"
+                    alt="HB Studio Dev - Logo"
+                    width={64}
+                    height={64}
+                    className={`object-contain drop-shadow-2xl transition-all duration-300 w-full h-full ${
                       resolvedTheme === 'light' ? 'brightness-0' : ''
                     }`}
+                    style={{ objectFit: 'contain' }}
                     priority
+                    unoptimized={false}
                   />
                 </motion.div>
               </AnimatePresence>
