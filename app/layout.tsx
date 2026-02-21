@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -57,11 +55,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
-          <Header />
-          <main className="min-h-screen transition-colors duration-300">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </ThemeProvider>
       </body>
     </html>
