@@ -116,7 +116,7 @@ export default async function AdminContractsSavedPage() {
                       {new Date(c.created_at).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <ContractRowActions contractId={c.id} pdfUrl={c.pdf_url} />
+                      <ContractRowActions contractId={c.id} pdfUrl={c.pdf_url} status={c.status} />
                     </td>
                   </tr>
                 ))

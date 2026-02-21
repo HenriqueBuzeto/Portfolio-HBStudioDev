@@ -31,7 +31,18 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Valor total fechado</p>
+              <p className="text-sm font-medium text-muted-foreground">Contratos assinados/pagos</p>
+              <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{stats.signed}</p>
+            </div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/15 text-green-600 dark:text-green-400">
+              <FileText className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Receita (assinados)</p>
               <p className="mt-2 text-2xl font-bold tabular-nums text-foreground sm:text-3xl">
                 {formatCurrency(stats.totalValue)}
               </p>
@@ -44,24 +55,11 @@ export default async function AdminDashboardPage() {
         <div className="rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Contratos pendentes</p>
+              <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
               <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">{stats.pending}</p>
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
               <Clock className="h-6 w-6" />
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border/50 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Meses com receita</p>
-              <p className="mt-2 text-3xl font-bold tabular-nums text-foreground">
-                {stats.byMonth.length}
-              </p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
-              <TrendingUp className="h-6 w-6" />
             </div>
           </div>
         </div>
@@ -76,7 +74,8 @@ export default async function AdminDashboardPage() {
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border/50 py-12 text-center">
             <p className="text-muted-foreground">Nenhum contrato assinado ainda.</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Os valores aparecem aqui quando você marcar contratos como assinados.
+              Em &quot;Contratos salvos&quot;, use o botão <strong>Assinado/Pago</strong> para
+              contabilizar a receita por mês.
             </p>
           </div>
         ) : (

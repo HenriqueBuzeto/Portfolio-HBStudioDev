@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "clean": "node scripts/clean.js",
+    "pdf-fields": "node scripts/list-pdf-form-fields.js",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d .next"
   },

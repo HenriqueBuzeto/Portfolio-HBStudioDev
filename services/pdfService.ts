@@ -32,6 +32,13 @@ const TEMPLATE_PATH = process.env.CONTRACT_PDF_TEMPLATE_PATH || 'public/contrato
 const TEMPLATE_FORM_PATH =
   process.env.CONTRACT_PDF_FORM_TEMPLATE_PATH || 'public/contrato_hb_studio_dev.pdf'
 
+/**
+ * Para ver por que o PDF não preenche: os campos do PDF precisam ter nomes compatíveis.
+ * - Rode: npm run pdf-fields  (lista os nomes exatos do seu PDF)
+ * - Ou acesse (logado no admin): GET /admin/api/contracts/pdf-form-fields
+ * - Se os nomes forem diferentes, adicione em FIELD_ALIASES abaixo ou renomeie no editor do PDF.
+ */
+
 export type PdfFormFields = {
   num_orc?: string
   nome_contratante?: string
@@ -93,6 +100,45 @@ function normalizeFieldName(name: string): string {
   return name.toLowerCase().replace(/\s+/g, '_').trim()
 }
 
+/** Lista os nomes e tipos de todos os campos do formulário do PDF (para diagnóstico). */
+export async function listPdfFormFields(templatePath: string): Promise<{ name: string; type: string }[]> {
+  const fullPath = path.join(process.cwd(), templatePath)
+  if (!fs.existsSync(fullPath)) throw new Error('Template não encontrado: ' + templatePath)
+  const bytes = fs.readFileSync(fullPath)
+  const pdfDoc = await PDFDocument.load(bytes)
+  const form = pdfDoc.getForm()
+  const fields = form.getFields()
+  return fields.map((f) => ({
+    name: f.getName(),
+    type: f.constructor.name.replace(/^PDF/, '').replace('Field', '') || 'Unknown',
+  }))
+}
+
+/** Aliases possíveis para nomes de campos (nome no nosso código → nomes que podem existir no PDF). */
+const FIELD_ALIASES: Record<string, string[]> = {
+  num_orc: ['num_orc', 'numero_orcamento', 'numero_orc', 'orcamento', 'n_orc'],
+  nome_contratante: ['nome_contratante', 'contratante', 'nome_contratado'],
+  cnpj_contratante: ['cnpj_contratante', 'cnpj_contratado', 'cpf_cnpj_contratante'],
+  nome_cliente: ['nome_cliente', 'cliente', 'nome_contratante_cliente'],
+  cpf_cnpj: ['cpf_cnpj', 'documento_cliente', 'cpf_cnpj_cliente', 'documento'],
+  email_cliente: ['email_cliente', 'email'],
+  telefone_cliente: ['telefone_cliente', 'telefone'],
+  endereco_cliente: ['endereco_cliente', 'endereco'],
+  valor_total: ['valor_total', 'valor', 'valor_contrato'],
+  data_contrato: ['data_contrato', 'data'],
+  forma_pagamento: ['forma_pagamento', 'pagamento'],
+  nome_projeto: ['nome_projeto', 'projeto', 'descricao_site'],
+  data_assinatura: ['data_assinatura', 'data_assinatura_contrato'],
+}
+
+function getCandidatesForKey(ourKey: string): string[] {
+  const normalized = normalizeFieldName(ourKey)
+  const aliases = FIELD_ALIASES[ourKey as keyof typeof FIELD_ALIASES]
+  const candidates = [ourKey, normalized]
+  if (aliases) candidates.push(...aliases)
+  return [...new Set(candidates)]
+}
+
 export async function fillPdfFormTemplate(
   templatePath: string,
   fields: Partial<PdfFormFields>
@@ -105,6 +151,10 @@ export async function fillPdfFormTemplate(
 
   // Mapa: nome normalizado → nome real no PDF (para campos cujo nome no arquivo pode variar)
   const allFields = form.getFields()
+  if (allFields.length === 0) {
+    throw new Error('Template PDF não possui campos de formulário editáveis (AcroForm). Use um PDF com campos de texto ou o sistema usará o modelo gerado automaticamente.')
+  }
+
   const normalizedToActualName = new Map<string, string>()
   for (const field of allFields) {
     const actualName = field.getName()
@@ -114,23 +164,40 @@ export async function fillPdfFormTemplate(
     }
   }
 
+  let filledCount = 0
   for (const ourKey of PDF_FORM_FIELD_NAMES) {
     const value = fields[ourKey]
     if (value === undefined || value === null) continue
     const str = String(value).trim()
-    try {
-      form.getTextField(ourKey).setText(str)
-    } catch {
-      // Tenta pelo nome normalizado (ex.: PDF com "Nome_contratante" ou "nome contratante")
-      const actualName = normalizedToActualName.get(normalizeFieldName(ourKey))
-      if (actualName) {
-        try {
-          form.getTextField(actualName).setText(str)
-        } catch {
-          // não é text field ou não existe no PDF
-        }
+    const candidates = [
+      ourKey,
+      normalizedToActualName.get(normalizeFieldName(ourKey)),
+      ...getCandidatesForKey(ourKey).map((c) => normalizedToActualName.get(normalizeFieldName(c))),
+    ].filter(Boolean) as string[]
+    const tried = new Set<string>()
+    let filled = false
+    for (const name of [ourKey, ...candidates]) {
+      if (!name || tried.has(name)) continue
+      tried.add(name)
+      try {
+        form.getTextField(name).setText(str)
+        filled = true
+        filledCount += 1
+        break
+      } catch {
+        // não é text field ou não existe; tenta próximo nome
       }
     }
+    if (!filled && process.env.NODE_ENV === 'development') {
+      console.warn(`[PDF] Campo não preenchido: "${ourKey}" (nomes tentados: ${[...tried].join(', ')})`)
+    }
+  }
+
+  if (filledCount === 0) {
+    const fieldNames = allFields.map((f) => f.getName()).join(', ')
+    throw new Error(
+      `Nenhum campo do PDF foi preenchido. Nomes dos campos no seu PDF: [${fieldNames}]. Rode "npm run pdf-fields" ou adicione aliases em services/pdfService.ts (FIELD_ALIASES).`
+    )
   }
 
   // Atualiza aparências para o texto preenchido aparecer corretamente
@@ -574,7 +641,17 @@ export async function generateContractPdf(data: ContractPdfData): Promise<Uint8A
       })
       return pdfBytes
     } catch (err) {
-      console.warn('Template com formulário não preenchido, tentando outro método:', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.warn('[PDF] Formulário não preenchido, usando modelo alternativo:', msg)
+      try {
+        const fieldList = await listPdfFormFields(TEMPLATE_FORM_PATH)
+        console.warn(
+          '[PDF] Campos existentes no seu PDF:',
+          fieldList.map((f) => `${f.name} (${f.type})`).join(', ')
+        )
+      } catch {
+        // ignora se não conseguir listar
+      }
     }
   }
 
@@ -586,7 +663,7 @@ export async function generateContractPdf(data: ContractPdfData): Promise<Uint8A
     try {
       return await generateWithTemplate(data, DEFAULT_TEMPLATE_POSITIONS)
     } catch (err) {
-      console.warn('Erro ao usar template PDF, gerando do zero:', err)
+      console.warn('[PDF] Erro ao usar template por posição, gerando do zero:', err)
     }
   }
 

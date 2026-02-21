@@ -117,6 +117,7 @@ export async function updateContract(
 
 export async function getContractsStats(): Promise<{
   total: number
+  signed: number
   totalValue: number
   pending: number
   byMonth: { month: string; value: number }[]
@@ -137,6 +138,7 @@ export async function getContractsStats(): Promise<{
     .slice(-12)
   return {
     total: contracts.length,
+    signed: signed.length,
     totalValue,
     pending: pending.length,
     byMonth: byMonthArr,
